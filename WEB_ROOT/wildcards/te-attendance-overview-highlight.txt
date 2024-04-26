@@ -1,0 +1,42 @@
+<style>
+  th[title^="~(f.currentdate;format=DDD[comma] MMM DD)"] {
+    background: yellow !important;
+  }
+</style>
+
+<script>
+  function jumpToToday(today="~(f.currentdate;format=DDD[comma] MMM DD)") {
+    const todayTh = document.querySelector(`th[title*="${today}"]`);
+    if (todayTh) {
+      todayTh.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  function addJumpToTodayButton() {
+    const button = document.createElement('a');
+    button.id = 'jump-to-today-button';
+    const firstButtonRow = document.querySelector('#content-main .button-row:first-of-type');
+
+    button.classList.add('button');
+    button.textContent = 'Jump to Today';
+    button.onclick = () => jumpToToday();
+    firstButtonRow.appendChild(button);
+  }
+
+  // Observe the table for changes and add the button when the table is loaded
+  const table = document.querySelector('#content-main');
+  const observer = new MutationObserver((mutationsList, observer) => {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'childList' && mutation.addedNodes.length) {
+        const existingButton = document.querySelector('#jump-to-today-button');
+        if (existingButton) {
+          observer.disconnect();
+          return
+        }
+        addJumpToTodayButton();
+        
+      }
+    }
+  });
+  observer.observe(table, { childList: true });
+</script>

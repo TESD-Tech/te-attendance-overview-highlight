@@ -1,0 +1,3 @@
+<!-- START meeting.te-attendance-customizations.content.footer.txt -->
+~[wc:te-attendance-overview-highlight]
+<!-- END meeting.te-attendance-customizations.content.footer.txt -->
