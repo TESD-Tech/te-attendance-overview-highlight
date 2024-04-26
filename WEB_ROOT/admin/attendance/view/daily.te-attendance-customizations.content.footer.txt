@@ -1,3 +1,0 @@
-<!-- START daily.te-attendance-customizations.content.footer.txt -->
-~[wc:te-attendance-overview-highlight]
-<!-- END daily.te-attendance-customizations.content.footer.txt -->
