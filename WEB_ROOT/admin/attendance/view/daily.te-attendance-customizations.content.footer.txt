@@ -1,0 +1,6 @@
+<!-- START daily.te-attendance-customizations.content.footer.txt -->
+<script>
+  document.querySelector(`[title*="${new Date().toLocaleString('en-US', { month: 'short', day: '2-digit' }) + ', ' + new Date().getFullYear()}"]`)
+    .setAttribute('style', 'background-color: yellow !important;')
+</script>
+<!-- END daily.te-attendance-customizations.content.footer.txt -->
