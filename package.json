@@ -1,6 +1,6 @@
 {
   "name": "te-attendance-customizations",
-  "version": "24.4.15",
+  "version": "25.1.0",
   "description": "TESD Attendance Overview Customizations",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   },
   "author": "Benjamin Kemp",
   "license": "MIT",
-  "dependencies": {
+  "devDependencies": {
     "@tesd-tech/ps-package": "^24.3.0"
   }
 }
