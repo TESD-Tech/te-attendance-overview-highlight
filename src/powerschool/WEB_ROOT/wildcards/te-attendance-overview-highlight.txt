@@ -1,42 +1,152 @@
 <style>
+  /* Today's highlight */
   th[title^="~(f.currentdate;format=DDD[comma] MMM DD)"] {
     background: yellow !important;
+    border: 2px dashed grey !important; /* Add a black border */
+
+  }
+
+  /* Previous day's highlight - will be added dynamically */
+  .yesterday-highlight {
+    background: #e6f3ff !important;
+  }
+
+  @keyframes pulse-border {
+    0% {
+      box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 6px rgba(0, 0, 0, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    }
+  }
+
+  .pulse-animation {
+    animation: pulse-border 1.5s cubic-bezier(0.4, 0, 0.6, 1) 2;
   }
 </style>
 
 <script>
-  function jumpToToday(today="~(f.currentdate;format=DDD[comma] MMM DD)") {
-    const todayTh = document.querySelector(`th[title*="${today}"]`);
-    if (todayTh) {
-      todayTh.scrollIntoView({ behavior: 'smooth' });
-    }
-  }
+  class AttendanceHighlighter {
+      constructor() {
+        this.buttonId = 'jump-to-today-button';
+        this.today = "~(f.currentdate;format=DDD[comma] MMM DD)";
+        this.debugMode = true; // Set to true to enable debug logging
+        this.init();
+        this.highlightYesterday();
+      }
 
-  function addJumpToTodayButton() {
-    const button = document.createElement('a');
-    button.id = 'jump-to-today-button';
-    const firstButtonRow = document.querySelector('#content-main .button-row:first-of-type');
+      getYesterdayDate() {
+        if (this.debugMode) console.log("Calculating yesterday's date...");
 
-    button.classList.add('button');
-    button.textContent = 'Jump to Today';
-    button.onclick = () => jumpToToday();
-    firstButtonRow.appendChild(button);
-  }
+        const [dayName, monthDay] = this.today.split(', ');
+        const [month, day] = monthDay.split(' ');
 
-  // Observe the table for changes and add the button when the table is loaded
-  const table = document.querySelector('#content-main');
-  const observer = new MutationObserver((mutationsList, observer) => {
-    for (const mutation of mutationsList) {
-      if (mutation.type === 'childList' && mutation.addedNodes.length) {
-        const existingButton = document.querySelector('#jump-to-today-button');
-        if (existingButton) {
-          observer.disconnect();
-          return
+        // Get the current year
+        const currentYear = new Date().getFullYear();
+
+        if (this.debugMode) {
+          console.log("Today's parts:", { dayName, month, day, currentYear });
         }
-        addJumpToTodayButton();
-        
+
+        const todayDate = new Date(currentYear, this.getMonthNumber(month), parseInt(day));
+        const yesterdayDate = new Date(todayDate);
+        yesterdayDate.setDate(todayDate.getDate() - 1);
+
+        // Use 'en-US' and weekday: 'short' for abbreviated day name
+        const yesterdayStr = yesterdayDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+        if (this.debugMode) console.log("Yesterday's date:", yesterdayStr);
+
+        return yesterdayStr;
+      }
+
+      getMonthNumber(monthStr) {
+        return { 'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5, 'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11 }[monthStr];
+      }
+
+      highlightYesterday() {
+        if (this.debugMode) console.log("Highlighting yesterday...");
+        const yesterday = this.getYesterdayDate();
+        this.highlightDay(yesterday, 'yesterday-highlight');
+      }
+
+      jumpToDay(dateStr, dayName = "") {
+        if (this.debugMode) console.log(`Jumping to ${dayName} with date: ${dateStr}`);
+
+        // Get the current year
+        const currentYear = new Date().getFullYear();
+
+        // Include the year and the extra text in the selector
+        const dayTh = document.querySelector(`th[title^="${dateStr}, ${currentYear} :"]`);
+
+        if (dayTh) {
+          dayTh.scrollIntoView({ behavior: 'smooth' });
+          dayTh.classList.remove('pulse-animation');
+          void dayTh.offsetWidth; // Force reflow
+          dayTh.classList.add('pulse-animation');
+          setTimeout(() => dayTh.classList.remove('pulse-animation'), 3000);
+        } else {
+          if (this.debugMode) console.warn(`Could not find ${dayName} cell with title starting with ${dateStr}, ${currentYear} :`);
+        }
+      }
+
+      createButton(id, text, clickHandler) {
+        const button = document.createElement('a');
+        button.id = id;
+        button.classList.add('button');
+        button.textContent = text;
+        button.onclick = clickHandler;
+        return button;
+      }
+
+      createButtons() {
+        const buttonRow = document.querySelector('#content-main .button-row:first-of-type');
+        if (!buttonRow) return;
+
+        buttonRow.appendChild(this.createButton(this.buttonId, 'Jump to Today', () => this.jumpToDay(this.today, "Today")));
+        buttonRow.appendChild(this.createButton('jump-to-yesterday-button', 'Jump to Yesterday', () => this.jumpToDay(this.getYesterdayDate(), "Yesterday")));
+      }
+
+      highlightDay(dateStr, highlightClass) {
+        if (this.debugMode) console.log(`Highlighting day with date: ${dateStr}`);
+
+        // Get the current year
+        const currentYear = new Date().getFullYear();
+
+        const dayTh = document.querySelector(`th[title^="${dateStr}, ${currentYear} :"]`);
+
+        if (this.debugMode) {
+          if (dayTh) {
+            console.log(`Found <th> element with title containing ${dateStr}, ${currentYear} :`);
+          } else {
+            console.log(`Could not find <th> element with title containing ${dateStr}, ${currentYear} :`);
+          }
+        }
+
+        if (dayTh) {
+          dayTh.classList.add(highlightClass);
+        }
+      }
+
+      init() {
+        const table = document.querySelector('#content-main');
+        if (!table) return;
+
+        const observer = new MutationObserver(() => {
+          if (document.querySelector(`#${this.buttonId}`)) {
+            observer.disconnect();
+            return;
+          }
+          this.createButtons();
+        });
+
+        observer.observe(table, { childList: true });
+        window.addEventListener('unload', () => observer.disconnect());
       }
     }
-  });
-  observer.observe(table, { childList: true });
+
+    document.addEventListener('DOMContentLoaded', () => new AttendanceHighlighter());
 </script>
