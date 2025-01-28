@@ -81,24 +81,65 @@
 </style>
 <script>
   class AttendanceHighlighter {
+    // Define all date configurations in one place
+    static DATE_TYPES = {
+      today: {
+        titlePrefix: "~(f.currentdate;format=DDD[comma] MMM DD)",
+        label: "Today's Date",
+        defaultColor: 'rgb(255, 255, 0)', // yellow
+        defaultEnabled: true
+      },
+      yesterday: {
+        titlePrefix: "~(date.information;type=today;offset=-1;dateformat=EEE, MMM dd, YYYY)",
+        label: "Yesterday's Date",
+        defaultColor: 'rgb(230, 243, 255)', // light blue
+        defaultEnabled: true
+      },
+      entryDate: {
+        titlePrefix: "~(entrydate;dateformat=DDD, MMM DD)",
+        label: "Entry Date",
+        defaultColor: 'rgb(72, 234, 166)', // mint green
+        defaultEnabled: true
+      },
+      exitDate: {
+        titlePrefix: "~(exitdate;dateformat=DDD, MMM DD)",
+        label: "Exit Date",
+        defaultColor: 'rgb(255,0,0)', // red
+        defaultEnabled: true
+      }
+    };
+
+    // Generate default settings from DATE_TYPES
+    static DEFAULT_SETTINGS = (() => {
+      const settings = {
+        defaultColor: 'rgb(163, 191, 204)' // default gray
+      };
+      
+      Object.entries(AttendanceHighlighter.DATE_TYPES).forEach(([key, config]) => {
+        settings[`${key}Enabled`] = config.defaultEnabled;
+        settings[`${key}Color`] = config.defaultColor;
+      });
+      
+      return settings;
+    })();
+
     constructor() {
       this.buttonId = 'jump-to-today-button';
-      this.today = "~(f.currentdate;format=DDD[comma] MMM DD)";
-      this.yesterday = "~(date.information;type=today;offset=-1;dateformat=EEE, MMM dd, YYYY)";
       this.debugMode = true;
+      
+      // Generate dateConfigs from DATE_TYPES
+      this.dateConfigs = {};
+      Object.entries(AttendanceHighlighter.DATE_TYPES).forEach(([key, config]) => {
+        this.dateConfigs[key] = {
+          ...config,
+          enabledSetting: `${key}Enabled`,
+          colorSetting: `${key}Color`
+        };
+      });
+
       this.settings = this.loadSettings();
       this.init();
     }
-    // Default settings
-    static DEFAULT_SETTINGS = {
-      todayEnabled: true,
-      yesterdayEnabled: true,
-      entryDateEnabled: true,
-      todayColor: 'rgb(255, 255, 0)',
-      yesterdayColor: 'rgb(230, 243, 255)',
-      entryDateColor: 'rgb(72, 234, 166)',
-      defaultColor: 'rgb(163, 191, 204)'
-    };
     loadSettings() {
       try {
         const savedSettings = document.cookie.split('; ').find(row => row.startsWith('attendanceHighlightSettings='));
@@ -121,38 +162,15 @@
       this.applySettings();
     }
     applySettings() {
-      // Today highlighting
-      const todayElements = document.querySelectorAll(`th[title^="${this.today}"]`);
-      todayElements.forEach(el => {
-        if (this.settings.todayEnabled) {
-          el.style.setProperty('background', this.settings.todayColor, 'important');
-          el.style.setProperty('border', '2px dashed grey', 'important');
-        } else {
-          el.style.setProperty('background', this.settings.defaultColor, 'important');
-          el.style.setProperty('border', 'none', 'important');
-        }
-      });
-      // Yesterday highlighting
-      const yesterdayElements = document.querySelectorAll(`th[title^="${this.yesterday}"]`);
-      yesterdayElements.forEach(el => {
-        if (this.settings.yesterdayEnabled) {
-          el.style.setProperty('background', this.settings.yesterdayColor, 'important');
-          el.style.setProperty('border', '2px dashed grey', 'important');
-        } else {
-          el.style.setProperty('background', this.settings.defaultColor, 'important');
-          el.style.setProperty('border', 'none', 'important');
-        }
-      });
-      // Entry date highlighting
-      const entryDateElements = document.querySelectorAll(`th[title^="~(entrydate;dateformat=DDD, MMM DD)"]`);
-      entryDateElements.forEach(el => {
-        if (this.settings.entryDateEnabled) {
-          el.style.setProperty('background', this.settings.entryDateColor, 'important');
-          el.style.setProperty('border', '2px dashed grey', 'important');
-        } else {
-          el.style.setProperty('background', this.settings.defaultColor, 'important');
-          el.style.setProperty('border', 'none', 'important');
-        }
+      Object.values(this.dateConfigs).forEach(config => {
+        const elements = document.querySelectorAll(`th[title^="${config.titlePrefix}"]`);
+        const isEnabled = this.settings[config.enabledSetting];
+        const color = isEnabled ? this.settings[config.colorSetting] : this.settings.defaultColor;
+        
+        elements.forEach(el => {
+          el.style.setProperty('background', color, 'important');
+          el.style.setProperty('border', isEnabled ? '2px dashed grey' : 'none', 'important');
+        });
       });
     }
     rgbToHex(rgb) {
@@ -171,53 +189,38 @@
     createSettingsModal() {
       const modal = document.createElement('div');
       modal.className = 'highlight-settings-modal';
+
+      const createSettingRow = (config) => `
+        <div class="highlight-settings-row">
+          <label>
+            <input type="checkbox" id="${config.enabledSetting}" ${this.settings[config.enabledSetting] ? 'checked' : ''}>
+            ${config.label}
+          </label>
+          <input type="color" id="${config.colorSetting}" value="${this.rgbToHex(this.settings[config.colorSetting])}">
+        </div>
+      `;
+
+      const dateSettings = Object.values(this.dateConfigs)
+        .map(config => createSettingRow(config))
+        .join('');
+
       modal.innerHTML = `
+        <div class="highlight-settings-content">
+          <h3>Highlight Settings</h3>
+          ${dateSettings}
+          <div class="highlight-settings-row" style="justify-content: space-between; margin-top: 20px;">
+            <button id="resetColors">Reset Colors</button>
+            <button onclick="this.closest('.highlight-settings-modal').style.display='none'">Close</button>
+          </div>
+        </div>
+      `;
 
-
-	<div class="highlight-settings-content">
-		<h3>Highlight Settings</h3>
-		<div class="highlight-settings-row">
-			<label>
-				<input type="checkbox" id="todayEnabled" ${this.settings.todayEnabled ? 'checked' : ''}>
-
-Today's Date
-
-
-				</label>
-				<input type="color" id="todayColor" value="${this.rgbToHex(this.settings.todayColor)}">
-				</div>
-				<div class="highlight-settings-row">
-					<label>
-						<input type="checkbox" id="yesterdayEnabled" ${this.settings.yesterdayEnabled ? 'checked' : ''}>
-
-Yesterday's Date
-
-
-						</label>
-						<input type="color" id="yesterdayColor" value="${this.rgbToHex(this.settings.yesterdayColor)}">
-						</div>
-						<div class="highlight-settings-row">
-							<label>
-								<input type="checkbox" id="entryDateEnabled" ${this.settings.entryDateEnabled ? 'checked' : ''}>
-
-Entry Date
-
-
-								</label>
-								<input type="color" id="entryDateColor" value="${this.rgbToHex(this.settings.entryDateColor)}">
-								</div>
-								<div class="highlight-settings-row" style="justify-content: space-between; margin-top: 20px;">
-									<button onclick="this.closest('.highlight-settings-content').querySelector('#resetColors').click()">Reset Colors</button>
-									<button onclick="this.closest('.highlight-settings-modal').style.display='none'">Close</button>
-								</div>
-							</div>
-
-`;
       // Add event listeners for settings changes
       const updateSetting = (event) => {
         const target = event.target;
         const settingName = target.id;
         let value = target.type === 'checkbox' ? target.checked : target.value;
+        
         // Convert hex to rgb when updating color
         if (target.type === 'color') {
           const r = parseInt(value.substr(1, 2), 16);
@@ -225,29 +228,26 @@ Entry Date
           const b = parseInt(value.substr(5, 2), 16);
           value = `rgb(${r}, ${g}, ${b})`;
         }
+        
         this.settings[settingName] = value;
         this.saveSettings();
       };
-      // Create a hidden reset button with the reset functionality
-      const resetButton = document.createElement('button');
-      resetButton.id = 'resetColors';
-      resetButton.style.display = 'none';
-      resetButton.onclick = () => {
-        // Reset colors to default values
-        this.settings.todayColor = AttendanceHighlighter.DEFAULT_SETTINGS.todayColor;
-        this.settings.yesterdayColor = AttendanceHighlighter.DEFAULT_SETTINGS.yesterdayColor;
-        this.settings.entryDateColor = AttendanceHighlighter.DEFAULT_SETTINGS.entryDateColor;
-        // Update color picker values
-        modal.querySelector('#todayColor').value = this.rgbToHex(this.settings.todayColor);
-        modal.querySelector('#yesterdayColor').value = this.rgbToHex(this.settings.yesterdayColor);
-        modal.querySelector('#entryDateColor').value = this.rgbToHex(this.settings.entryDateColor);
-        // Save and apply the changes
+
+      // Handle color reset functionality
+      const resetButton = modal.querySelector('#resetColors');
+      resetButton.addEventListener('click', () => {
+        Object.values(this.dateConfigs).forEach(config => {
+          this.settings[config.colorSetting] = AttendanceHighlighter.DEFAULT_SETTINGS[config.colorSetting];
+          modal.querySelector(`#${config.colorSetting}`).value = this.rgbToHex(this.settings[config.colorSetting]);
+        });
         this.saveSettings();
-      };
-      modal.querySelector('.highlight-settings-content').appendChild(resetButton);
+      });
+
+      // Add change listeners to all inputs
       modal.querySelectorAll('input').forEach(input => {
         input.addEventListener('change', updateSetting);
       });
+
       document.body.appendChild(modal);
       return modal;
     }
@@ -280,8 +280,8 @@ Entry Date
       const buttonRow = document.querySelector('#content-main .button-row:first-of-type');
       if (!buttonRow) return;
       const modal = this.createSettingsModal();
-      buttonRow.appendChild(this.createButton(this.buttonId, 'Jump to Today', () => this.jumpToDay(this.today, "Today")));
-      buttonRow.appendChild(this.createButton('jump-to-yesterday-button', 'Jump to Yesterday', () => this.jumpToDay(this.yesterday, "Yesterday")));
+      buttonRow.appendChild(this.createButton(this.buttonId, 'Jump to Today', () => this.jumpToDay(this.dateConfigs.today.titlePrefix, "Today")));
+      buttonRow.appendChild(this.createButton('jump-to-yesterday-button', 'Jump to Yesterday', () => this.jumpToDay(this.dateConfigs.yesterday.titlePrefix, "Yesterday")));
       buttonRow.appendChild(this.createButton('highlight-settings-button', 'Highlight Settings',
         () => modal.style.display = 'block', 'highlight-settings-button'));
     }
