@@ -1,23 +1,70 @@
+<!-- START te-attendance-overview-highlight.txt -->
 <style>
+  .highlight-settings-button {
+    margin-left: 10px !important;
+  }
+
+  .highlight-settings-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+  }
+
+  .highlight-settings-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    min-width: 300px;
+  }
+
+  .highlight-settings-row {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    justify-content: space-between;
+  }
+
+  .highlight-settings-row label {
+    margin-right: 10px;
+  }
+
   /* Today's highlight */
   th[title^="~(f.currentdate;format=DDD[comma] MMM DD)"] {
     background: yellow !important;
-    border: 2px dashed grey !important; /* Add a black border */
-
+    border: 2px dashed grey !important;
   }
 
-  /* Previous day's highlight - will be added dynamically */
-  .yesterday-highlight {
+  /* Yesterday's highlight */
+  th[title^="~(date.information;type=today;offset=-1;dateformat=EEE, MMM dd, YYYY)"] {
     background: #e6f3ff !important;
+    border: 2px dashed grey !important;
+  }
+
+  /* Entry Date highlight */
+  th[title^="~(entrydate;dateformat=DDD, MMM DD)"] {
+    background: #48eaa6 !important;
+    border: 2px dashed grey !important;
   }
 
   @keyframes pulse-border {
     0% {
       box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
     }
+
     70% {
       box-shadow: 0 0 0 6px rgba(0, 0, 0, 0);
     }
+
     100% {
       box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
     }
@@ -26,127 +73,235 @@
   .pulse-animation {
     animation: pulse-border 1.5s cubic-bezier(0.4, 0, 0.6, 1) 2;
   }
-</style>
 
+  .highlight-disabled {
+    background: transparent !important;
+    border: none !important;
+  }
+</style>
 <script>
   class AttendanceHighlighter {
-      constructor() {
-        this.buttonId = 'jump-to-today-button';
-        this.today = "~(f.currentdate;format=DDD[comma] MMM DD)";
-        this.debugMode = true; // Set to true to enable debug logging
-        this.init();
-        this.highlightYesterday();
-      }
-
-      getYesterdayDate() {
-        if (this.debugMode) console.log("Calculating yesterday's date...");
-
-        const [dayName, monthDay] = this.today.split(', ');
-        const [month, day] = monthDay.split(' ');
-
-        // Get the current year
-        const currentYear = new Date().getFullYear();
-
-        if (this.debugMode) {
-          console.log("Today's parts:", { dayName, month, day, currentYear });
+    constructor() {
+      this.buttonId = 'jump-to-today-button';
+      this.today = "~(f.currentdate;format=DDD[comma] MMM DD)";
+      this.yesterday = "~(date.information;type=today;offset=-1;dateformat=EEE, MMM dd, YYYY)";
+      this.debugMode = true;
+      this.settings = this.loadSettings();
+      this.init();
+    }
+    // Default settings
+    static DEFAULT_SETTINGS = {
+      todayEnabled: true,
+      yesterdayEnabled: true,
+      entryDateEnabled: true,
+      todayColor: 'rgb(255, 255, 0)',
+      yesterdayColor: 'rgb(230, 243, 255)',
+      entryDateColor: 'rgb(72, 234, 166)',
+      defaultColor: 'rgb(163, 191, 204)'
+    };
+    loadSettings() {
+      try {
+        const savedSettings = document.cookie.split('; ').find(row => row.startsWith('attendanceHighlightSettings='));
+        if (savedSettings) {
+          return {
+            ...AttendanceHighlighter.DEFAULT_SETTINGS,
+            ...JSON.parse(decodeURIComponent(savedSettings.split('=')[1]))
+          };
         }
-
-        const todayDate = new Date(currentYear, this.getMonthNumber(month), parseInt(day));
-        const yesterdayDate = new Date(todayDate);
-        yesterdayDate.setDate(todayDate.getDate() - 1);
-
-        // Use 'en-US' and weekday: 'short' for abbreviated day name
-        const yesterdayStr = yesterdayDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-
-        if (this.debugMode) console.log("Yesterday's date:", yesterdayStr);
-
-        return yesterdayStr;
+      } catch (error) {
+        if (this.debugMode) console.error('Error loading settings:', error);
       }
-
-      getMonthNumber(monthStr) {
-        return { 'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5, 'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11 }[monthStr];
-      }
-
-      highlightYesterday() {
-        if (this.debugMode) console.log("Highlighting yesterday...");
-        const yesterday = this.getYesterdayDate();
-        this.highlightDay(yesterday, 'yesterday-highlight');
-      }
-
-      jumpToDay(dateStr, dayName = "") {
-        if (this.debugMode) console.log(`Jumping to ${dayName} with date: ${dateStr}`);
-
-        // Get the current year
-        const currentYear = new Date().getFullYear();
-
-        // Include the year and the extra text in the selector
-        const dayTh = document.querySelector(`th[title^="${dateStr}, ${currentYear} :"]`);
-
-        if (dayTh) {
-          dayTh.scrollIntoView({ behavior: 'smooth' });
-          dayTh.classList.remove('pulse-animation');
-          void dayTh.offsetWidth; // Force reflow
-          dayTh.classList.add('pulse-animation');
-          setTimeout(() => dayTh.classList.remove('pulse-animation'), 3000);
+      return {
+        ...AttendanceHighlighter.DEFAULT_SETTINGS
+      };
+    }
+    saveSettings() {
+      const settingsStr = encodeURIComponent(JSON.stringify(this.settings));
+      document.cookie = `attendanceHighlightSettings=${settingsStr}; path=/; max-age=31536000`; // 1 year
+      this.applySettings();
+    }
+    applySettings() {
+      // Today highlighting
+      const todayElements = document.querySelectorAll(`th[title^="${this.today}"]`);
+      todayElements.forEach(el => {
+        if (this.settings.todayEnabled) {
+          el.style.setProperty('background', this.settings.todayColor, 'important');
+          el.style.setProperty('border', '2px dashed grey', 'important');
         } else {
-          if (this.debugMode) console.warn(`Could not find ${dayName} cell with title starting with ${dateStr}, ${currentYear} :`);
+          el.style.setProperty('background', this.settings.defaultColor, 'important');
+          el.style.setProperty('border', 'none', 'important');
         }
-      }
-
-      createButton(id, text, clickHandler) {
-        const button = document.createElement('a');
-        button.id = id;
-        button.classList.add('button');
-        button.textContent = text;
-        button.onclick = clickHandler;
-        return button;
-      }
-
-      createButtons() {
-        const buttonRow = document.querySelector('#content-main .button-row:first-of-type');
-        if (!buttonRow) return;
-
-        buttonRow.appendChild(this.createButton(this.buttonId, 'Jump to Today', () => this.jumpToDay(this.today, "Today")));
-        buttonRow.appendChild(this.createButton('jump-to-yesterday-button', 'Jump to Yesterday', () => this.jumpToDay(this.getYesterdayDate(), "Yesterday")));
-      }
-
-      highlightDay(dateStr, highlightClass) {
-        if (this.debugMode) console.log(`Highlighting day with date: ${dateStr}`);
-
-        // Get the current year
-        const currentYear = new Date().getFullYear();
-
-        const dayTh = document.querySelector(`th[title^="${dateStr}, ${currentYear} :"]`);
-
-        if (this.debugMode) {
-          if (dayTh) {
-            console.log(`Found <th> element with title containing ${dateStr}, ${currentYear} :`);
-          } else {
-            console.log(`Could not find <th> element with title containing ${dateStr}, ${currentYear} :`);
-          }
+      });
+      // Yesterday highlighting
+      const yesterdayElements = document.querySelectorAll(`th[title^="${this.yesterday}"]`);
+      yesterdayElements.forEach(el => {
+        if (this.settings.yesterdayEnabled) {
+          el.style.setProperty('background', this.settings.yesterdayColor, 'important');
+          el.style.setProperty('border', '2px dashed grey', 'important');
+        } else {
+          el.style.setProperty('background', this.settings.defaultColor, 'important');
+          el.style.setProperty('border', 'none', 'important');
         }
-
-        if (dayTh) {
-          dayTh.classList.add(highlightClass);
+      });
+      // Entry date highlighting
+      const entryDateElements = document.querySelectorAll(`th[title^="~(entrydate;dateformat=DDD, MMM DD)"]`);
+      entryDateElements.forEach(el => {
+        if (this.settings.entryDateEnabled) {
+          el.style.setProperty('background', this.settings.entryDateColor, 'important');
+          el.style.setProperty('border', '2px dashed grey', 'important');
+        } else {
+          el.style.setProperty('background', this.settings.defaultColor, 'important');
+          el.style.setProperty('border', 'none', 'important');
         }
-      }
+      });
+    }
+    rgbToHex(rgb) {
+      // Convert 'rgb(r, g, b)' to '#rrggbb'
+      const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+      if (!match) return rgb; // Return as is if not RGB format
+      const r = parseInt(match[1]);
+      const g = parseInt(match[2]);
+      const b = parseInt(match[3]);
+      const toHex = (n) => {
+        const hex = n.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      };
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    }
+    createSettingsModal() {
+      const modal = document.createElement('div');
+      modal.className = 'highlight-settings-modal';
+      modal.innerHTML = `
 
-      init() {
-        const table = document.querySelector('#content-main');
-        if (!table) return;
 
-        const observer = new MutationObserver(() => {
-          if (document.querySelector(`#${this.buttonId}`)) {
-            observer.disconnect();
-            return;
-          }
-          this.createButtons();
+	<div class="highlight-settings-content">
+		<h3>Highlight Settings</h3>
+		<div class="highlight-settings-row">
+			<label>
+				<input type="checkbox" id="todayEnabled" ${this.settings.todayEnabled ? 'checked' : ''}>
+
+Today's Date
+
+
+				</label>
+				<input type="color" id="todayColor" value="${this.rgbToHex(this.settings.todayColor)}">
+				</div>
+				<div class="highlight-settings-row">
+					<label>
+						<input type="checkbox" id="yesterdayEnabled" ${this.settings.yesterdayEnabled ? 'checked' : ''}>
+
+Yesterday's Date
+
+
+						</label>
+						<input type="color" id="yesterdayColor" value="${this.rgbToHex(this.settings.yesterdayColor)}">
+						</div>
+						<div class="highlight-settings-row">
+							<label>
+								<input type="checkbox" id="entryDateEnabled" ${this.settings.entryDateEnabled ? 'checked' : ''}>
+
+Entry Date
+
+
+								</label>
+								<input type="color" id="entryDateColor" value="${this.rgbToHex(this.settings.entryDateColor)}">
+								</div>
+								<div class="highlight-settings-row" style="justify-content: space-between; margin-top: 20px;">
+									<button onclick="this.closest('.highlight-settings-content').querySelector('#resetColors').click()">Reset Colors</button>
+									<button onclick="this.closest('.highlight-settings-modal').style.display='none'">Close</button>
+								</div>
+							</div>
+
+`;
+      // Add event listeners for settings changes
+      const updateSetting = (event) => {
+        const target = event.target;
+        const settingName = target.id;
+        let value = target.type === 'checkbox' ? target.checked : target.value;
+        // Convert hex to rgb when updating color
+        if (target.type === 'color') {
+          const r = parseInt(value.substr(1, 2), 16);
+          const g = parseInt(value.substr(3, 2), 16);
+          const b = parseInt(value.substr(5, 2), 16);
+          value = `rgb(${r}, ${g}, ${b})`;
+        }
+        this.settings[settingName] = value;
+        this.saveSettings();
+      };
+      // Create a hidden reset button with the reset functionality
+      const resetButton = document.createElement('button');
+      resetButton.id = 'resetColors';
+      resetButton.style.display = 'none';
+      resetButton.onclick = () => {
+        // Reset colors to default values
+        this.settings.todayColor = AttendanceHighlighter.DEFAULT_SETTINGS.todayColor;
+        this.settings.yesterdayColor = AttendanceHighlighter.DEFAULT_SETTINGS.yesterdayColor;
+        this.settings.entryDateColor = AttendanceHighlighter.DEFAULT_SETTINGS.entryDateColor;
+        // Update color picker values
+        modal.querySelector('#todayColor').value = this.rgbToHex(this.settings.todayColor);
+        modal.querySelector('#yesterdayColor').value = this.rgbToHex(this.settings.yesterdayColor);
+        modal.querySelector('#entryDateColor').value = this.rgbToHex(this.settings.entryDateColor);
+        // Save and apply the changes
+        this.saveSettings();
+      };
+      modal.querySelector('.highlight-settings-content').appendChild(resetButton);
+      modal.querySelectorAll('input').forEach(input => {
+        input.addEventListener('change', updateSetting);
+      });
+      document.body.appendChild(modal);
+      return modal;
+    }
+    jumpToDay(dateStr, dayName = "") {
+      if (this.debugMode) console.log(`Jumping to ${dayName} with date: ${dateStr}`);
+      const currentYear = new Date().getFullYear();
+      const dayTh = document.querySelector(`th[title^="${dateStr}, ${currentYear} :"]`);
+      if (dayTh) {
+        dayTh.scrollIntoView({
+          behavior: 'smooth'
         });
-
-        observer.observe(table, { childList: true });
-        window.addEventListener('unload', () => observer.disconnect());
+        dayTh.classList.remove('pulse-animation');
+        void dayTh.offsetWidth;
+        dayTh.classList.add('pulse-animation');
+        setTimeout(() => dayTh.classList.remove('pulse-animation'), 3000);
+      } else {
+        if (this.debugMode) console.warn(`Could not find ${dayName} cell with title starting with ${dateStr}, ${currentYear} :`);
       }
     }
-
-    document.addEventListener('DOMContentLoaded', () => new AttendanceHighlighter());
+    createButton(id, text, clickHandler, className = '') {
+      const button = document.createElement('a');
+      button.id = id;
+      button.classList.add('button');
+      if (className) button.classList.add(className);
+      button.textContent = text;
+      button.onclick = clickHandler;
+      return button;
+    }
+    createButtons() {
+      const buttonRow = document.querySelector('#content-main .button-row:first-of-type');
+      if (!buttonRow) return;
+      const modal = this.createSettingsModal();
+      buttonRow.appendChild(this.createButton(this.buttonId, 'Jump to Today', () => this.jumpToDay(this.today, "Today")));
+      buttonRow.appendChild(this.createButton('jump-to-yesterday-button', 'Jump to Yesterday', () => this.jumpToDay(this.yesterday, "Yesterday")));
+      buttonRow.appendChild(this.createButton('highlight-settings-button', 'Highlight Settings',
+        () => modal.style.display = 'block', 'highlight-settings-button'));
+    }
+    init() {
+      const table = document.querySelector('#content-main');
+      if (!table) return;
+      const observer = new MutationObserver(() => {
+        if (document.querySelector(`#${this.buttonId}`)) {
+          observer.disconnect();
+          return;
+        }
+        this.createButtons();
+        this.applySettings();
+      });
+      observer.observe(table, {
+        childList: true
+      });
+      window.addEventListener('unload', () => observer.disconnect());
+    }
+  }
+  document.addEventListener('DOMContentLoaded', () => new AttendanceHighlighter());
 </script>
+<!-- END te-attendance-overview-highlight.txt -->
