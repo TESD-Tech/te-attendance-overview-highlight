@@ -1,6 +1,6 @@
 {
   "name": "te-attendance-customizations",
-  "version": "25.1.2",
+  "version": "25.1.3",
   "description": "TESD Attendance Overview Customizations",
   "main": "index.js",
   "scripts": {

@@ -51,7 +51,7 @@
   }
 
   /* Entry Date highlight */
-  th[title^="~(entrydate;dateformat=DDD, MMM DD)"] {
+  th[title^="~(entrydate;dateformat=DDD, MMM DD, YYYY)"] {
     background: #48eaa6 !important;
     border: 2px dashed grey !important;
   }
@@ -84,7 +84,7 @@
     // Define all date configurations in one place
     static DATE_TYPES = {
       today: {
-        titlePrefix: "~(f.currentdate;format=DDD[comma] MMM DD)",
+        titlePrefix: "~(date.information;type=today;dateformat=EEE, MMM dd, YYYY)",
         label: "Today's Date",
         defaultColor: 'rgb(255, 255, 0)', // yellow
         defaultEnabled: true
@@ -96,13 +96,13 @@
         defaultEnabled: true
       },
       entryDate: {
-        titlePrefix: "~(entrydate;dateformat=DDD, MMM DD)",
+        titlePrefix: "~(entrydate;dateformat=DDD, MMM DD, YYYY)",
         label: "Entry Date",
         defaultColor: 'rgb(72, 234, 166)', // mint green
         defaultEnabled: true
       },
       exitDate: {
-        titlePrefix: "~(exitdate;dateformat=DDD, MMM DD)",
+        titlePrefix: "~(exitdate;-1;dateformat=DDD, MMM DD, YYYY)",
         label: "Exit Date",
         defaultColor: 'rgb(255,0,0)', // red
         defaultEnabled: true
