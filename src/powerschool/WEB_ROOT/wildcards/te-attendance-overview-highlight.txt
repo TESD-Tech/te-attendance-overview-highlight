@@ -254,7 +254,7 @@
     jumpToDay(dateStr, dayName = "") {
       if (this.debugMode) console.log(`Jumping to ${dayName} with date: ${dateStr}`);
       const currentYear = new Date().getFullYear();
-      const dayTh = document.querySelector(`th[title^="${dateStr}, ${currentYear} :"]`);
+      const dayTh = document.querySelector(`th[title^="${dateStr}"]`);
       if (dayTh) {
         dayTh.scrollIntoView({
           behavior: 'smooth'
