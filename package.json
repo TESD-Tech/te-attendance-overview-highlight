@@ -13,6 +13,6 @@
   "author": "Benjamin Kemp",
   "license": "MIT",
   "devDependencies": {
-    "@tesd-tech/ps-package": "^24.11.9"
+    "@tesd-tech/ps-package": "^25.10.5"
   }
 }

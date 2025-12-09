@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@tesd-tech/ps-package':
-        specifier: ^24.11.9
-        version: 24.11.9
+        specifier: ^25.10.5
+        version: 25.10.5
 
 packages:
 
@@ -22,8 +22,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@tesd-tech/ps-package@24.11.9':
-    resolution: {integrity: sha512-YuMmOOuNV2U71N+vXBFHVvbbU/EbATd/dzy4pLB6+eOgSxhFKCka+v06KNIYDrjI1NQbODWnh8Far3WoBIjkhA==}
+  '@tesd-tech/ps-package@25.10.5':
+    resolution: {integrity: sha512-e9MXEDPXPIjkIQROhR3ssPww5anp2E7mWjvtgjFquTPJID+z+AEf5U4i6iKI4mBni2DD37w8xdZPiH0LmWhV9A==}
     hasBin: true
 
   abort-controller@3.0.0:
@@ -68,8 +68,8 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  bare-events@2.8.0:
-    resolution: {integrity: sha512-AOhh6Bg5QmFIXdViHbMc2tLDsBIRxdkIaIddPslJF9Z5De3APBScuqGP2uThXnIpqFrgoxMNC6km7uXNIMLHXA==}
+  bare-events@2.8.2:
+    resolution: {integrity: sha512-riJjyv1/mHLIPX4RwiK+oW9/4c3TEUeORHKefKAKnZ5kyslbN+HXowtbaVEqt4IMUB7OXlfixcs6gsFeo/jhiQ==}
     peerDependencies:
       bare-abort-controller: '*'
     peerDependenciesMeta:
@@ -89,20 +89,12 @@ packages:
   buffer@6.0.3:
     resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
 
-  calver@24.1.0:
-    resolution: {integrity: sha512-ohts3WtGGbQ2a9FBmpmh6vSdd9t414i1NPOmz2wx3f17Q+KWNO9WEWQ5YwAtWNIJXVsVOlbRqbsOlLutxCq8cA==}
-    hasBin: true
-
   color-convert@2.0.1:
     resolution: {integrity: sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==}
     engines: {node: '>=7.0.0'}
 
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
-
-  commander@12.1.0:
-    resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
-    engines: {node: '>=18'}
 
   compress-commons@6.0.2:
     resolution: {integrity: sha512-6FqVXeETqWPoGcfzrXb37E50NP0LXT8kAMu5ooZayhWWdgEY4lBEEcbQNXtkuKQsGduxiIcI4gOTsxTmuq/bSg==}
@@ -151,12 +143,8 @@ packages:
     resolution: {integrity: sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==}
     engines: {node: '>=14'}
 
-  fs-extra@11.3.2:
-    resolution: {integrity: sha512-Xr9F6z6up6Ws+NjzMCZc6WXg2YFRlrLP9NQDO3VQrWrfiojdhS56TzueT88ze0uBdCTwEIhQ3ptnmKeWGFAe0A==}
-    engines: {node: '>=14.14'}
-
-  glob@10.4.5:
-    resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
+  glob@10.5.0:
+    resolution: {integrity: sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg==}
     hasBin: true
 
   graceful-fs@4.2.11:
@@ -185,9 +173,6 @@ packages:
   jackspeak@3.4.3:
     resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
 
-  jsonfile@6.2.0:
-    resolution: {integrity: sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==}
-
   lazystream@1.0.1:
     resolution: {integrity: sha512-b94GiNHQNy6JNTrt5w6zNyffMrNkXZb3KTkCZJb2V1xaEGCk093vkZ2jk3tpaeP33/OiXC+WvK9AxUebnf5nbw==}
     engines: {node: '>= 0.6.3'}
@@ -205,9 +190,6 @@ packages:
   minimatch@9.0.5:
     resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
     engines: {node: '>=16 || 14 >=14.17'}
-
-  minimist@1.2.8:
-    resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
 
   minipass@7.1.2:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
@@ -251,8 +233,8 @@ packages:
   safe-buffer@5.2.1:
     resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==}
 
-  sax@1.4.1:
-    resolution: {integrity: sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==}
+  sax@1.4.3:
+    resolution: {integrity: sha512-yqYn1JhPczigF94DMS+shiDMjDowYO6y9+wB/4WgO0Y19jWYk0lQ4tuG5KI7kj4FTp1wxPj5IFfcrz/s1c3jjQ==}
 
   shebang-command@2.0.0:
     resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
@@ -297,10 +279,6 @@ packages:
   text-decoder@1.2.3:
     resolution: {integrity: sha512-3/o9z3X0X0fTupwsYvR03pJ/DjWuqqrfwBgTQzdWDiQSm9KitAyz/9WqsT2JQW7KV2m+bC2ol/zqpW37NHxLaA==}
 
-  universalify@2.0.1:
-    resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
-    engines: {node: '>= 10.0.0'}
-
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -343,12 +321,9 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@tesd-tech/ps-package@24.11.9':
+  '@tesd-tech/ps-package@25.10.5':
     dependencies:
       archiver: 7.0.1
-      calver: 24.1.0
-      fs-extra: 11.3.2
-      minimist: 1.2.8
       xml2js: 0.6.2
     transitivePeerDependencies:
       - bare-abort-controller
@@ -370,7 +345,7 @@ snapshots:
 
   archiver-utils@5.0.2:
     dependencies:
-      glob: 10.4.5
+      glob: 10.5.0
       graceful-fs: 4.2.11
       is-stream: 2.0.1
       lazystream: 1.0.1
@@ -397,7 +372,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  bare-events@2.8.0: {}
+  bare-events@2.8.2: {}
 
   base64-js@1.5.1: {}
 
@@ -412,17 +387,11 @@ snapshots:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  calver@24.1.0:
-    dependencies:
-      commander: 12.1.0
-
   color-convert@2.0.1:
     dependencies:
       color-name: 1.1.4
 
   color-name@1.1.4: {}
-
-  commander@12.1.0: {}
 
   compress-commons@6.0.2:
     dependencies:
@@ -457,7 +426,7 @@ snapshots:
 
   events-universal@1.0.1:
     dependencies:
-      bare-events: 2.8.0
+      bare-events: 2.8.2
     transitivePeerDependencies:
       - bare-abort-controller
 
@@ -470,13 +439,7 @@ snapshots:
       cross-spawn: 7.0.6
       signal-exit: 4.1.0
 
-  fs-extra@11.3.2:
-    dependencies:
-      graceful-fs: 4.2.11
-      jsonfile: 6.2.0
-      universalify: 2.0.1
-
-  glob@10.4.5:
+  glob@10.5.0:
     dependencies:
       foreground-child: 3.3.1
       jackspeak: 3.4.3
@@ -505,12 +468,6 @@ snapshots:
     optionalDependencies:
       '@pkgjs/parseargs': 0.11.0
 
-  jsonfile@6.2.0:
-    dependencies:
-      universalify: 2.0.1
-    optionalDependencies:
-      graceful-fs: 4.2.11
-
   lazystream@1.0.1:
     dependencies:
       readable-stream: 2.3.8
@@ -526,8 +483,6 @@ snapshots:
   minimatch@9.0.5:
     dependencies:
       brace-expansion: 2.0.2
-
-  minimist@1.2.8: {}
 
   minipass@7.1.2: {}
 
@@ -572,7 +527,7 @@ snapshots:
 
   safe-buffer@5.2.1: {}
 
-  sax@1.4.1: {}
+  sax@1.4.3: {}
 
   shebang-command@2.0.0:
     dependencies:
@@ -634,8 +589,6 @@ snapshots:
     transitivePeerDependencies:
       - react-native-b4a
 
-  universalify@2.0.1: {}
-
   util-deprecate@1.0.2: {}
 
   which@2.0.2:
@@ -656,7 +609,7 @@ snapshots:
 
   xml2js@0.6.2:
     dependencies:
-      sax: 1.4.1
+      sax: 1.4.3
       xmlbuilder: 11.0.1
 
   xmlbuilder@11.0.1: {}
